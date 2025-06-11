@@ -76,12 +76,12 @@ const UserSchema: Schema<IUser> = new Schema({
 // to check if a model is already there, then we fetch it
 // mongoose.models.User as mongoose.Model<IMessage>
 
-const Message = mongoose.models.Message as mongoose.Model<IMessage> || mongoose.model<IMessage>("Message", MessageSchema);
+const MessageModel = mongoose.models.Message as mongoose.Model<IMessage> || mongoose.model<IMessage>("Message", MessageSchema);
 
-const User = mongoose.models.User as mongoose.Model<IUser> || mongoose.model<IUser>("User", UserSchema);
+const UserModel = mongoose.models.User as mongoose.Model<IUser> || mongoose.model<IUser>("User", UserSchema);
 
-export default User;
+export default UserModel;
 export {
-    Message,
+    MessageModel,
 }
 

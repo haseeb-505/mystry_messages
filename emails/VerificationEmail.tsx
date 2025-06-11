@@ -42,8 +42,8 @@ export const VerificationEmail = ({
         <Text style={paragraph}>Not expecting this email?</Text>
         <Text style={paragraph}>
           Contact{' '}
-          <Link href="mailto:login@plaid.com" style={link}>
-            login@plaid.com
+          <Link href="onboarding@resend.dev" style={link}>
+            onboarding@resend.dev
           </Link>{' '}
           if you did not request this code.
         </Text>

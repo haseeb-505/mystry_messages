@@ -19,7 +19,7 @@ export async function GET(request: Request) {
         }
         // validate wiht zod
         const result = UsernameQuerySchema.safeParse(queryParam);
-        console.log("result in check username is: ", result) // TODO: REMOVE
+        // console.log("result in check username is: ", result) // TODO: REMOVE
         if (!result.success) {
             const usernameErrors = result.error.format().username?._errors || []
             return Response.json({
@@ -51,9 +51,3 @@ export async function GET(request: Request) {
         }, { status: 500})
     }
 }
-
-
-
-
-
-

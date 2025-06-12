@@ -13,7 +13,7 @@ import { verifySchema } from "@/schemas/verifySchema";
 import { ApiResponse } from "@/types/ApiResponse";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios, { AxiosError } from "axios";
-import { Loader2 } from "lucide-react";
+import { Loader2, Replace } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -46,6 +46,11 @@ const VerifyAccount = () => {
       const axiosError = error as AxiosError<ApiResponse>;
       const errorMessage =
         axiosError.response?.data.message ?? "An error occurred";
+        // if user is already verified, redirect user to sign-in page
+        if (errorMessage === 'User is already verified') {
+          toast("verification already done", { description: errorMessage });
+          return router.replace("/sign-in")
+        }
       toast("verify code failed", { description: errorMessage });
       setIsSubmitting(false);
     }

@@ -43,7 +43,11 @@ export async function GET(request: Request) {
             messages: user[0].messages
         }, {status: 200})
     } catch (error) {
-        
+        console.log("Internal sever error: ", error)
+        return Response.json({
+            success: false,
+            message: "Internal sever error"
+        }, {status: 500})
     }
 }
 

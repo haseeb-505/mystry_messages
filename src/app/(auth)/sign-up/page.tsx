@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { useDebounceValue } from "usehooks-ts";
+import { useDebounceValue, useDebounceCallback } from "usehooks-ts";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { signUpSchema } from "@/schemas/signUpSchema";
@@ -30,7 +30,7 @@ const Page = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Debounce username, but only trigger after user input
-  const [debouncedUsername] = useDebounceValue(username, 500); // Increased delay to 500ms
+  const debounced = useDebounceCallback(setUsername, 100); // Increased delay to 500ms
   const router = useRouter();
 
   // Zod implementation
@@ -45,12 +45,12 @@ const Page = () => {
 
   useEffect(() => {
     const checkUsernameUniqueness = async () => {
-      // Only check if username is non-empty and at least 3 characters
+      // Only check if username is non-empty
       
-      if (debouncedUsername && debouncedUsername.length >= 3) {
+      if (username) {
         // Validate debouncedUsername type
-        if (typeof debouncedUsername !== "string") {
-          console.error("Invalid debouncedUsername type:", debouncedUsername);
+        if (typeof username !== "string") {
+          console.error("Invalid debouncedUsername type:", username);
           setUsernameMessage("Error checking username");
           return;
         }
@@ -59,8 +59,9 @@ const Page = () => {
         setUsernameMessage("");
         try {
           const response = await axios.get(
-            `/api/check-username-unique?username=${encodeURIComponent(debouncedUsername)}`
+            `/api/check-username-unique?username=${encodeURIComponent(username)}`
           );
+          console.log("Message in response data is: ", response.data.message)
           setUsernameMessage(response.data.message);
         } catch (error) {
           const axiosError = error as AxiosError<ApiResponse>;
@@ -73,7 +74,7 @@ const Page = () => {
       }
     };
     checkUsernameUniqueness();
-  }, [debouncedUsername]);
+  }, [username]);
 
   const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
     setIsSubmitting(true);
@@ -115,17 +116,17 @@ const Page = () => {
                       {...field}
                       onChange={(e) => {
                         field.onChange(e);
-                        setUsername(e.target.value);
+                        debounced(e.target.value);
                       }}
                     />
                   </FormControl>
                   <FormDescription>
-                    {!usernameMessage && <span>This is your public display name.</span>}
+                    {(!usernameMessage && !username) && <span>This is your public display name.</span>}
                     {isCheckingUsername && (<span> Checking...</span>)}
                     {usernameMessage && (
                       <span
                         className={
-                          usernameMessage.includes("available")
+                          usernameMessage === "username available"
                             ? "text-green-600"
                             : "text-red-600"
                         }

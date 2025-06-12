@@ -3,12 +3,9 @@ import UserModel from "@/models/User";
 import bcrypt from "bcryptjs";
 import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
 
-
-
 export async function POST(request:Request) {
     // db connection, edge base connection in Next.js
     await dbConnect()
-    console.log("We are in singUp")
     try {
         const {username, email, password} = await request.json()
         const exisitngUserVerifiedByUsername = await UserModel.findOne(

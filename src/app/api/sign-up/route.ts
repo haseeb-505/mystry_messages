@@ -1,7 +1,7 @@
 // src/app/api/sign-up/route.ts
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
-import TempUserModel, { ITempUser } from "@/models/TempUser";
+import TempUserModel from "@/models/TempUser";
 import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
 import bcrypt from "bcryptjs";
 import UserModel from "@/models/User";
@@ -13,9 +13,9 @@ export async function POST(request: Request) {
   try {
     const { username, email, password } = await request.json();
 
-    // check if user with same credentials is already in the temp model
+    // check if user with same credentials, both username and email, is already in the temp model
     const existingTempUser = await TempUserModel.findOne({
-        $or: [{ username }, { email }]
+        $and: [{ username }, { email }]
     });
     if (existingTempUser) {
         return NextResponse.json({
@@ -31,9 +31,11 @@ export async function POST(request: Request) {
     if (existingVerifiedUser) {
         return NextResponse.json({
             success: false,
-            message: "Already exists a verified user with same credentials"
+            message: "Already exists a verified user with either same email or same username"
         }, {status: 400})
     }
+
+    // 
 
     // hashpassword 
     const hashedPassword = await bcrypt.hash(password, 10);

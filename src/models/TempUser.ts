@@ -44,5 +44,5 @@ const tempUserSchema: Schema<ITempUser> = new Schema({
 // to check if a model is already there, then we fetch it
 // mongoose.models.User as mongoose.Model<ITempUser>
 
-export default mongoose.models.TempUser<ITempUser> || mongoose.model<ITempUser>("TempUser", tempUserSchema);
+export default mongoose.models.TempUser<ITempUser> as mongoose.Model<ITempUser> || mongoose.model<ITempUser>("TempUser", tempUserSchema);
 

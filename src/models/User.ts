@@ -9,8 +9,8 @@ export interface IUser extends Document {
     username: string;
     email: string;
     password: string;
-    verifyCode: string;
-    verifyCodeExpiry: Date;
+    verifyCode: string | undefined;
+    verifyCodeExpiry: Date | undefined;
     isVerified: boolean;
     isAcceptingMessage: boolean;
     messages: IMessage[];

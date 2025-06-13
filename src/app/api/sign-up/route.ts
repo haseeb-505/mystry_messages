@@ -9,6 +9,11 @@ import UserModel from "@/models/User";
 export async function POST(request: Request) {
   await dbConnect();
 
+  // added logic check for existing user if it has same email and username, raise error, 
+  // if either of the both is different, generate a verifyCode, 
+  // let the first verifier take the credentials 
+  // but if some existing user has the any of mail or name, raise error
+
   // create temporary user in temp model and then update it in verify
   try {
     const { username, email, password } = await request.json();

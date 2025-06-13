@@ -159,7 +159,7 @@ const Page = () => {
                     <Input placeholder="email" {...field} />
                   </FormControl>
                   <FormDescription>
-                    {errors === "User alreay exists with this email" && (
+                    {errors  && (
                       <span
                         className={"text-red-600"}
                       >

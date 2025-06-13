@@ -1,8 +1,9 @@
-'use client'
+"use client";
 import { Button } from "@/components/ui/button";
 import {
-    Form,
+  Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -21,7 +22,8 @@ import { toast } from "sonner";
 import * as z from "zod";
 
 const VerifyAccount = () => {
-    const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
   const params = useParams<{ username: string }>();
 
@@ -46,12 +48,14 @@ const VerifyAccount = () => {
       const axiosError = error as AxiosError<ApiResponse>;
       const errorMessage =
         axiosError.response?.data.message ?? "An error occurred";
-        // if user is already verified, redirect user to sign-in page
-        if (errorMessage === 'User is already verified') {
-          toast("verification already done", { description: errorMessage });
-          return router.replace("/sign-in")
-        }
+      // if user is already verified, redirect user to sign-in page
+      if (errorMessage === "User is already verified") {
+        toast("verification already done", { description: errorMessage });
+        return router.replace("/sign-in");
+      }
       toast("verify code failed", { description: errorMessage });
+      // set this error message in errors state to display in form field
+      setErrorMessage(errorMessage)
       setIsSubmitting(false);
     }
   };
@@ -76,12 +80,20 @@ const VerifyAccount = () => {
                   <FormControl>
                     <Input placeholder="code" {...field} />
                   </FormControl>
+                  <FormDescription>
+                    {errorMessage && (
+                      <span className={"text-red-600"}> {errorMessage}</span>
+                    )}
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button className="bg-black text-white p-4 rounded-lg text-center" 
-                type="submit" disabled={isSubmitting}>
+            <Button
+              className="bg-black text-white p-4 rounded-lg text-center"
+              type="submit"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please wait

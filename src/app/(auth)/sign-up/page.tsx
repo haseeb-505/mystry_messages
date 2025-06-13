@@ -26,11 +26,14 @@ import { Loader2 } from "lucide-react";
 const Page = () => {
   const [username, setUsername] = useState("");
   const [usernameMessage, setUsernameMessage] = useState("");
+
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [errors, setErrors] = useState("");
+
   // Debounce username, but only trigger after user input
-  const debounced = useDebounceCallback(setUsername, 100); // Increased delay to 500ms
+  const debounced = useDebounceCallback(setUsername, 500); // Increased delay to 500ms
   const router = useRouter();
 
   // Zod implementation
@@ -48,9 +51,9 @@ const Page = () => {
       // Only check if username is non-empty
       
       if (username) {
-        // Validate debouncedUsername type
+        // Validate username type
         if (typeof username !== "string") {
-          console.error("Invalid debouncedUsername type:", username);
+          console.error("Invalid username type:", username);
           setUsernameMessage("Error checking username");
           return;
         }
@@ -61,7 +64,7 @@ const Page = () => {
           const response = await axios.get(
             `/api/check-username-unique?username=${encodeURIComponent(username)}`
           );
-          console.log("Message in response data is: ", response.data.message)
+          // console.log("Message in response data is: ", response.data.message)
           setUsernameMessage(response.data.message);
         } catch (error) {
           const axiosError = error as AxiosError<ApiResponse>;
@@ -73,6 +76,8 @@ const Page = () => {
         }
       }
     };
+
+    // email check is done in response
     checkUsernameUniqueness();
   }, [username]);
 
@@ -87,8 +92,11 @@ const Page = () => {
     } catch (error) {
       console.error("Error in signup:", error);
       const axiosError = error as AxiosError<ApiResponse>;
+      console.log("Errors here are: ", axiosError.response?.data.message)
       const errorMessage = axiosError.response?.data.message ?? "An error occurred";
       toast("Signup failed", { description: errorMessage });
+      // update errors state so that i can be used in form given below
+      setErrors(errorMessage);
       setIsSubmitting(false);
     }
   };
@@ -140,6 +148,7 @@ const Page = () => {
                 </FormItem>
               )}
             />
+            {/* email */}
             <FormField
               control={form.control}
               name="email"
@@ -149,10 +158,21 @@ const Page = () => {
                   <FormControl>
                     <Input placeholder="email" {...field} />
                   </FormControl>
+                  <FormDescription>
+                    {errors && (
+                      <span
+                        className={"text-red-600"}
+                      >
+                        {" "}
+                        {errors}
+                      </span>
+                    )}
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            {/* password */}
             <FormField
               control={form.control}
               name="password"
@@ -166,7 +186,11 @@ const Page = () => {
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={isSubmitting}>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="cursor-pointer"
+              >
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please wait

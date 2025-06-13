@@ -1,5 +1,7 @@
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/models/User";
+import TempUserModel from "@/models/TempUser";
+import { NextResponse } from "next/server";
 
 export async function POST(request:Request) {
     await dbConnect();
@@ -8,35 +10,49 @@ export async function POST(request:Request) {
         const {username, code} = await request.json();
         const decodedUsername = decodeURIComponent(username);
         // find the user
-        const user = await UserModel.findOne({username: decodedUsername});
-        if (!user) {
-            return Response.json({
+        const tempUser = await TempUserModel.findOne({username: decodedUsername});
+        if (!tempUser) {
+            return NextResponse.json({
             success: false,
             message: "User not found"
-        }, { status: 400})
+        }, { status: 404})
         }
 
         // check code and expiry date
-        const isCodeValid = user.verifyCode === code;
-        const isCodeNotExpired = new Date(user.verifyCodeExpiry) > new Date();
-        if (isCodeValid && isCodeNotExpired) {
-            user.isVerified = true;
-            await user.save();
+        const isCodeValid = tempUser.verifyCode === code;
+        const isCodeNotExpired = new Date(tempUser.verifyCodeExpiry ?? 0) > new Date();
 
-            return Response.json({
-            success: true,
-            message: "Account verified successfully!"
-        }, { status: 200})
+        if (isCodeValid && isCodeNotExpired) {
+            const newUser = new UserModel({
+                username: tempUser.username,
+                email: tempUser.email,
+                password: tempUser.password,
+                isVerified: true,
+            });
+            await newUser.save();
+            // delete the temporary user
+            await TempUserModel.deleteOne({ username });
+            return NextResponse.json(
+                { success: true, message: "Account verified successfully!" },
+                { status: 200 }
+            );
         } else if (!isCodeNotExpired) {
-            return Response.json({
-            success: false,
-            message: "Verification code is expired. Please signup again to get a new code."
-        }, { status: 400})
-        } else if (!isCodeValid){
-            return Response.json({
-            success: false,
-            message: "Verification code is invalid."
-        }, { status: 400})
+            await TempUserModel.deleteOne({ username });
+            return NextResponse.json(
+                {
+                success: false,
+                message: "Verification code is expired. Please signup again to get a new code.",
+                },
+                { status: 400 }
+            );
+        } else if (!isCodeValid) {
+            return NextResponse.json(
+                {
+                success: false,
+                message: "Verification code is invalid, try again",
+                },
+                { status: 400 }
+            );
         }
     } catch (error) {
         console.error("Error verifying user: ", error);

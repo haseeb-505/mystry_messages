@@ -52,6 +52,7 @@ const page = () => {
     }
 
     if (result?.url) {
+      console.log("resulting url is: ", result.url)
       setIsSubmitting(false);
       router.replace("/dashboard")
     }

@@ -9,8 +9,8 @@ export async function middleware(request: NextRequest) {
     const url = request.nextUrl;
     
     if (token && (
-        url.pathname.startsWith('/signIn') ||
-        url.pathname.startsWith('/signUp') ||
+        url.pathname.startsWith('/sign-in') ||
+        url.pathname.startsWith('/sign-up') ||
         url.pathname.startsWith('/verify') ||
         url.pathname.startsWith('/')
     )) {
@@ -20,8 +20,8 @@ export async function middleware(request: NextRequest) {
     // Allow unauthenticated users to access sign-in, sign-up, and verify routes
     if (
         !token &&
-        (url.pathname.startsWith('/signIn') ||
-        url.pathname.startsWith('/signUp') ||
+        (url.pathname.startsWith('/sign-in') ||
+        url.pathname.startsWith('/sign-up') ||
         url.pathname.startsWith('/verify'))
     ) {
         return NextResponse.next(); // Proceed to the requested route

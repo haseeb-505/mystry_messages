@@ -5,12 +5,12 @@ export interface IMessage extends Document {
     createdAt: Date;
 };
 
+// removed verifyCode and verifyCodeExpiry as they both are not needed for verified User 
+// becuase in this model we are saving only verified user
 export interface IUser extends Document {
     username: string;
     email: string;
     password: string;
-    verifyCode: string | undefined;
-    verifyCodeExpiry: Date | undefined;
     isVerified: boolean;
     isAcceptingMessage: boolean;
     messages: IMessage[];
@@ -49,14 +49,6 @@ const UserSchema: Schema<IUser> = new Schema({
         type: String,
         required: [true, "Password is required"],
         minlength: 6,
-    },
-    verifyCode: {
-        type: String,
-        required: true,
-    },
-    verifyCodeExpiry:{
-        type: Date,
-        required: [true, "Verify code expiry is required"],
     },
     isVerified: {
         type: Boolean,

@@ -49,7 +49,7 @@ const MessageCard = ({ message, onMessageDelete }: MessageCardProps) => {
     <Card>
       <CardHeader>
         <div className="flex justify-between items-center">
-          <CardTitle>{message.content.slice(1,10) || ""}</CardTitle>
+          <CardTitle>{message.content.slice(0,10) || ""}</CardTitle>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="destructive" size="sm">

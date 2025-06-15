@@ -34,28 +34,33 @@ const page = () => {
   // accept message shcema validation using zod
   const form = useForm({
     resolver: zodResolver(acceptMessagesSchema),
+    defaultValues: {
+      acceptMessages: true,
+    }
   });
 
   const { register, watch, setValue } = form;
 
   const acceptMessages = watch("acceptMessages");
-
+  
   const fetchAcceptMessage = useCallback(async () => {
     setIsSwitchLoading(true);
     try {
       const response = await axios.get("/api/accept-messages");
-      setValue("acceptMessages", response.data.isAcceptingMessage);
+      form.setValue("acceptMessages", response.data.isAcceptingMessages ?? true);
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
-      toast("Error", {
+      toast.error("Error", {
         description:
           axiosError.response?.data.message ||
           "Failed to fetch message settings",
       });
+      // Fallback to true if API fails
+      form.setValue("acceptMessages", true);
     } finally {
       setIsSwitchLoading(false);
     }
-  }, [setValue]);
+  }, [form]);
 
   const fetchAllMessages = useCallback(
     async (refresh: boolean = false) => {
@@ -65,13 +70,13 @@ const page = () => {
         const response = await axios.get<ApiResponse>("/api/get-messages");
         setMessages(response.data.messages || []);
         if (refresh) {
-          toast("Refreshed Messages", {
+          toast.success("Refreshed Messages", {
             description: "Showing latest messages",
           });
         }
       } catch (error) {
         const axiosError = error as AxiosError<ApiResponse>;
-        toast("Error Fetching all messages", {
+        toast.error("Error Fetching all messages", {
           description:
             axiosError.response?.data.message || "Failed to fetch all message",
         });
@@ -87,19 +92,26 @@ const page = () => {
     if (!session || !session.user) return;
     fetchAllMessages();
     fetchAcceptMessage();
-  }, [session, setValue, fetchAcceptMessage, fetchAllMessages]);
+  }, [session, fetchAcceptMessage, fetchAllMessages]);
 
   // handle awitch change
   const handleSwitchChange = async () => {
     try {
+      // using optimistic approach
+      // update the value at ui, and send request for backend updating
+      const newValue = !acceptMessages;
+      form.setValue("acceptMessages", newValue);
+      
+      // backend request
       const response = await axios.post<ApiResponse>("/api/accept-messages", {
-        acceptMessages: !acceptMessages,
+        acceptMessages: newValue,
       });
-      setValue("acceptMessages", !acceptMessages);
-      toast(response.data.message);
+      toast.success(response.data.message);
     } catch (error) {
+      // Revert on error
+      form.setValue("acceptMessages", !acceptMessages);
       const axiosError = error as AxiosError<ApiResponse>;
-      toast("Failed to toggle", {
+      toast.error("Failed to toggle", {
         description:
           axiosError.response?.data.message || "Failed to toggle switch state",
       });
@@ -120,7 +132,7 @@ const page = () => {
   };
 
   if (!session || !session.user) {
-    return <div>Please Login</div>;
+    return <div className="flex text-center text-2xl bg-black text-white mt-8 mx-auto p-6 border rounded-lg">Please Login</div>;
   }
 
   return (
@@ -152,7 +164,7 @@ const page = () => {
           disabled={isSwitchLoading}
           aria-label="Toggle message acceptance"
         />
-        <span className="ml-2">Accept Messages: {acceptMessages ? "On" : "Off"}</span>
+        <span className="ml-2">{acceptMessages ? "On" : "Off"}</span>
       </div>
       <Separator />
 

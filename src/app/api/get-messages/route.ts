@@ -11,7 +11,6 @@ export async function GET(request: Request) {
     const session = await getServerSession(authOptions);
 
     const user: User = session?.user as User;
-    console.log("User is: ", user)
 
     if (!session || !session.user) {
         console.log("Session expired")

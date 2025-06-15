@@ -12,7 +12,7 @@ export interface IUser extends Document {
     email: string;
     password: string;
     isVerified: boolean;
-    isAcceptingMessage: boolean;
+    isAcceptingMessages: boolean;
     messages: IMessage[];
 }
 
@@ -54,7 +54,7 @@ const UserSchema: Schema<IUser> = new Schema({
         type: Boolean,
         default: false,
     },
-    isAcceptingMessage: {
+    isAcceptingMessages: {
         type: Boolean,
         default: true,
     },

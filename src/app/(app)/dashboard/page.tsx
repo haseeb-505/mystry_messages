@@ -1,7 +1,6 @@
 "use client";
 
 import MessageCard from "@/components/MessageCard";
-import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { IMessage } from "@/models/User";
@@ -113,7 +112,7 @@ const page = () => {
 
   const copyToClipboad = () => {
     navigator.clipboard.writeText(profileUrl);
-    toast("URL coppied", {
+    toast.success("URL coppied", {
       description: "Profile url has been copied to clipboard",
     });
   };
@@ -151,7 +150,7 @@ const page = () => {
           disabled={isSwitchLoading}
           aria-label="Toggle message acceptance"
         />
-        <span className="ml-2">{acceptMessages ? "On" : "Off"}</span>
+        <span className="ml-2">Accept Messages: {acceptMessages ? "On" : "Off"}</span>
       </div>
       <Separator />
 

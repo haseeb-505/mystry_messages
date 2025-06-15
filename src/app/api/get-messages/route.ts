@@ -9,23 +9,26 @@ export async function GET(request: Request) {
     await dbConnect();
 
     const session = await getServerSession(authOptions);
+
     const user: User = session?.user as User;
+    console.log("User is: ", user)
 
     if (!session || !session.user) {
+        console.log("Session expired")
         return Response.json({
             success: false,
             message: "Not Authenticated"
         }, {status: 401})
     }
 
-    // we concerted user id to string,
+    // we converted user id to string,
     // it may raise an error in mongoose aggregations
 
-    const userId = new mongoose.Types.ObjectId(user._id);
+    const userId = new mongoose.Types.ObjectId(user?._id);
 
     try {
         const user = await UserModel.aggregate([
-            {$match: {id: userId}},
+            {$match: {_id: userId}},
             {$unwind: '$messages'},
             {$sort: {'messages.createdAt': -1}},
             {$group: {_id: '$_id', messages: {$push: '$messages'}}}

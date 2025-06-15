@@ -106,7 +106,9 @@ const page = () => {
     }
   };
 
-  const { username } = session?.user as User;
+  const sessionUser = session?.user as User;
+  const username = sessionUser?.username;
+  // console.log("Username is: ", username)
   const baseUrl = `${window.location.protocol}//${window.location.host}`;
   const profileUrl = `${baseUrl}/u/${username}`;
 
@@ -134,7 +136,7 @@ const page = () => {
             disabled
             className="input input-border w-full p-2 mr-2"
           />
-          <Button onClick={copyToClipboad}>Copy</Button>
+          <Button className="bg-black text-white text-center cursor-pointer w-16 px-6 py-2 rounded-lg hover:bg-gray-700" onClick={copyToClipboad}>Copy</Button>
         </div>
       </div>
 
